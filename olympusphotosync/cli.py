@@ -85,6 +85,7 @@ def parseopts(argv=None):
         sys.exit(0)
 
     if opts.on:
+        # TODO: Works only for days.
         opts.newer = opts.on.replace(hour=0, minute=0, second=0, microsecond=0)
         opts.older = opts.on.replace(hour=23, minute=59, second=59, microsecond=59999)
 

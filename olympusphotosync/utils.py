@@ -43,6 +43,8 @@ def parse_timespec(dt_str):
         '%Y-%m-%d %H:%M:%S',
         '%Y-%m-%d %H:%M',
         '%Y-%m-%d',
+        '%Y-%m',
+        '%Y',
         '%H:%M:%S',
         '%H:%M',
     )
