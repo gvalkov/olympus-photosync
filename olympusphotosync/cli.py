@@ -173,13 +173,14 @@ def names_to_entries(names, entries):
 
 def download_helper(conn, entries, destdir, parsable):
     '''Download entries.'''
-    def with_progress(fh, entry):
+    def with_progress(fh, entry, num_entries, num_entry):
         with tqdm(desc=fh.name, total=entry.size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+            pbar.set_postfix(remaining=num_entries - num_entry)
             for data in oishare.download(conn, entry):
                 pbar.update(len(data))
                 fh.write(data)
 
-    def without_progress(fh, entry):
+    def without_progress(fh, entry, num_entries, num_entry):
         for data in oishare.download(conn, entry):
             fh.write(data)
         print(fh.name)
@@ -187,10 +188,11 @@ def download_helper(conn, entries, destdir, parsable):
     destdir.mkdir(parents=True, exist_ok=True)
     download_func = without_progress if parsable else with_progress
 
-    for entry in entries:
+    num_entries = len(entries)
+    for n, entry in enumerate(entries, 1):
         dest = destdir / entry.name
         with dest.open('wb') as fh:
-            download_func(fh, entry)
+            download_func(fh, entry, num_entries, n)
 
 
 #-----------------------------------------------------------------------------
