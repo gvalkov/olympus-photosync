@@ -38,7 +38,7 @@ extras_require = {
 
 kw = {
     'name':                 'olympus-photosync',
-    'version':              '0.0.1',
+    'version':              '1.0.0',
 
     'description':          'Sync photos from WiFi enabled Olympus cameras',
     'long_description':     open('README.rst').read(),
