@@ -5,7 +5,10 @@ Olympus Photosync
 
 |pypi| |build| |license|
 
+
 List, download and sync photos and videos from WiFi enabled Olympus cameras.
+
+|Asciinema|
 
 
 Installation
@@ -93,6 +96,10 @@ Released under the terms of the `Revised BSD License`_.
 .. |build| image:: https://img.shields.io/travis/gvalkov/olympus-photosync/master.svg?style=flat-square&label=build
     :target: http://travis-ci.org/gvalkov/python-olympus-photosync
     :alt: Build status
+
+.. |Asciinema| image:: https://asciinema.org/a/i1og9KbzvspJsKpO3aOzFhZfA.png
+    :target: https://asciinema.org/a/i1og9KbzvspJsKpO3aOzFhZfA?theme=monokai&size=medium&autoplay=1&speed=1.2
+    :alt: Asciinema terminal recording
 
 .. _`Revised BSD License`: https://raw.github.com/gvalkov/olympus-photosync/master/LICENSE
 .. _`olympus-photosync`:  https://github.com/mauriciojost/olympus-photosync
