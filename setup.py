@@ -4,6 +4,7 @@ from setuptools import setup, find_packages
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
@@ -49,6 +50,7 @@ kw = {
     'url':                  'https://github.com/gvalkov/olympus-photosync',
     'classifiers':          classifiers,
     'extras_require':       extras_require,
+    'python_requires':      '>=3.3',
     'packages':             find_packages(),
     'entry_points':         entry_points,
     'zip_safe':             True,

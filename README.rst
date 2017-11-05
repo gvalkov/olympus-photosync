@@ -14,7 +14,7 @@ All functionality has been verified to work with the following digital cameras:
 - Olympus E-M10
 
 However, cameras that use the same media sharing mechanism should work just
-as well. With that mentioned, the list of cameras *probably* work is:
+as well. With that mentioned, the list of cameras that *probably* work is:
 
 - Olympus E-M1
 - Olympus E-M5
@@ -73,13 +73,12 @@ Usage
     olympus-photosync list --newer 2017-09-17T16:21:00 --older 2017-09-20
     olympus-photosync list --newer 10d --older 12h
     olympus-photosync list --on today
-    olympus-photosync get -d ~/photos P8060697.JPG P7250454.MOV
-    olympus-photosync get -d ~/photos "*.jpg"
+    olympus-photosync get --destdir ~/photos P8060697.JPG P7250454.MOV
+    olympus-photosync get --destdir ~/photos "*.jpg"
     olympus-photosync sync ~/photos
 
-A minimal cross-platform GUI is provided by the `olympus-photosync-gui` command.
-At the moment it can be used to list and download files from supported devices.
-
+A cross-platform GUI is provided by the ``olympus-photosync-gui`` program. At
+the moment it can be used to list and download files from supported devices.
 
 .. image:: docs/images/gui-screenshot.png
 
