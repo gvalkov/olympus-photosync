@@ -5,10 +5,21 @@ Olympus Photosync
 
 |pypi| |build| |license|
 
-
 List, download and sync photos and videos from WiFi enabled Olympus cameras.
 
 |Asciinema|
+
+All functionality has been verified to work with the following digital cameras:
+
+- Olympus E-M10
+
+However, cameras that use the same media sharing mechanism should work just
+as well. With that mentioned, the list of cameras *probably* work is:
+
+- Olympus E-M1
+- Olympus E-M5
+- Olympus TG-860
+- Olympus TG-5
 
 
 Installation
@@ -66,11 +77,20 @@ Usage
     olympus-photosync get -d ~/photos "*.jpg"
     olympus-photosync sync ~/photos
 
+A minimal cross-platform GUI is provided by the `olympus-photosync-gui` command.
+At the moment it can be used to list and download files from supported devices.
+
+
+.. image:: docs/images/gui-screenshot.png
+
 
 Todo
 ----
 
 - Test on more cameras.
+- Test on Windows.
+- The GUI needs more work (e.g. add thumbnails, improve usability).
+- Provide a standalone binary for Windows using PyInstaller.
 
 
 Alternatives
