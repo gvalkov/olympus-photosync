@@ -149,6 +149,7 @@ def cmd_sync(conn, entries, destdir, parsable):
         if not dest.exists() or dest.stat().st_size != entry.size:
             entries_to_download.append(entry)
 
+    entries_to_download = list(reversed(entries_to_download))
     download_helper(conn, entries_to_download, destdir, parsable)
 
 
