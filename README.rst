@@ -58,6 +58,7 @@ Usage
     -t, --timeout seconds   connection timeout (default: 60)
 
   Download options:
+    -n, --dryrun            show files that will be synced and exit
     -d, --destdir           destination directory (default: ./)
     name [name ...]         media files to download (example: PA290940.JPG)
 

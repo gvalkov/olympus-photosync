@@ -43,6 +43,7 @@ def parseopts(argv=None):
       name [name ...]         media files to download (example: PA290940.JPG)
 
     Synchronization options:
+      -n, --dryrun            show files that will be synced and exit
       destdir                 directory which to download media files
 
     Filter options:
@@ -72,9 +73,10 @@ def parseopts(argv=None):
 
     opt('-r', '--parsable', action='store_true')
     opt('-d', '--destdir', default='./')
+    opt('-n', '--dryrun', action='store_true')
 
-    opt('-o', '--older', type='timespec')
-    opt('-n', '--newer', type='timespec')
+    opt('--older', type='timespec')
+    opt('--newer', type='timespec')
     opt('--on', type='timespec')
 
     opts, args = parser.parse_args(argv)
@@ -135,13 +137,13 @@ def cmd_list(entries, parsable):
         print(fmt.format(entry.name, size, time))
 
 
-def cmd_get(conn, entries, names, destdir, parsable):
+def cmd_get(conn, entries, names, destdir, parsable, dryrun=False):
     '''Download one or more file from camera.'''
     entries_to_download = names_to_entries(names, entries)
-    download_helper(conn, entries_to_download, destdir, parsable)
+    download_helper(conn, entries_to_download, destdir, parsable, dryrun)
 
 
-def cmd_sync(conn, entries, destdir, parsable):
+def cmd_sync(conn, entries, destdir, parsable, dryrun=False):
     '''Pull missing files from camera.'''
     entries_to_download = []
     for entry in entries:
@@ -150,7 +152,7 @@ def cmd_sync(conn, entries, destdir, parsable):
             entries_to_download.append(entry)
 
     entries_to_download = list(reversed(entries_to_download))
-    download_helper(conn, entries_to_download, destdir, parsable)
+    download_helper(conn, entries_to_download, destdir, parsable, dryrun)
 
 
 #-----------------------------------------------------------------------------
@@ -173,7 +175,7 @@ def names_to_entries(names, entries):
     return [name_to_entry[name] for name in matched_names]
 
 
-def download_helper(conn, entries, destdir, parsable):
+def download_helper(conn, entries, destdir, parsable, dryrun=False):
     '''Download entries.'''
     def with_progress(fh, entry, num_entries, num_entry):
         with tqdm(desc=fh.name, total=entry.size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
@@ -186,6 +188,11 @@ def download_helper(conn, entries, destdir, parsable):
         for data in oishare.download(conn, entry):
             fh.write(data)
         print(fh.name)
+
+    if dryrun:
+        paths = (destdir / entry.name for entry in entries)
+        print('\n'.join(map(str, paths)))
+        return
 
     destdir.mkdir(parents=True, exist_ok=True)
     download_func = without_progress if parsable else with_progress
@@ -213,7 +220,7 @@ def main(argv=sys.argv[1:]):
         elif cmd == 'get':
             cmd_get(conn, entries, args[1:], opts.destdir, opts.parsable)
         elif cmd == 'sync':
-            cmd_sync(conn, entries, opts.destdir, opts.parsable)
+            cmd_sync(conn, entries, opts.destdir, opts.parsable, opts.dryrun)
     except KeyboardInterrupt:
         pass
 
