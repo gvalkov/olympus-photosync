@@ -76,8 +76,8 @@ def parseopts(argv=None):
     opt('-d', '--destdir', default='./')
     opt('-n', '--dryrun', action='store_true')
 
-    opt('--older', type='timespec')
-    opt('--newer', type='timespec')
+    opt('--older', type='timespec', default=(None, None))
+    opt('--newer', type='timespec', default=(None, None))
     opt('--on', type='timespec')
 
     opts, args = parser.parse_args(argv)
@@ -217,7 +217,7 @@ def main(argv=sys.argv[1:]):
     conn = HTTPConnection(opts.addr, opts.port, opts.timeout)
 
     entries = oishare.find_entries(conn, opts.baseurl)
-    if opts.newer or opts.older:
+    if opts.newer[0] or opts.older[0]:
         entries = oishare.filter_entries(entries, opts.newer, opts.older)
 
     try:

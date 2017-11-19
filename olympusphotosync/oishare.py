@@ -23,18 +23,19 @@ def find_entries(conn, baseurl):
     return parse_index(html)
 
 
-def filter_entries(entries, newer_than=None, older_than=None):
+def filter_entries(entries, newer=(None, None), older=(None, None)):
+    newer_than, older_than = None, None
     key_funcs = {
         'timestamp': keyfunc_timestamp,
         'name': keyfunc_name,
     }
 
-    if newer_than:
-        newer_than, newer_key = newer_than
+    if all(newer):
+        newer_than, newer_key = newer
         newer_key = key_funcs[newer_key]
 
-    if older_than:
-        older_than, older_key = older_than
+    if all(older):
+        older_than, older_key = older
         older_key = key_funcs[older_key]
 
     for entry in entries:

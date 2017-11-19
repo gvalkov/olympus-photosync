@@ -37,25 +37,25 @@ def only_names(it):
 
 def test_filter_timestamp():
     d = dt(2017, 10, 27, 12, 52, 6), 'timestamp'
-    assert {49, 50, 51, 52, 53, 54}     == only_names(filter_entries(e1, newer_than=d))
-    assert {41, 42, 43, 44, 45, 46, 47} == only_names(filter_entries(e1, older_than=d))
+    assert {49, 50, 51, 52, 53, 54}     == only_names(filter_entries(e1, newer=d))
+    assert {41, 42, 43, 44, 45, 46, 47} == only_names(filter_entries(e1, older=d))
 
     nd = dt(2017, 10, 25, 12, 52, 2), 'timestamp'
     od = dt(2017, 10, 29, 12, 52, 10), 'timestamp'
-    assert {51, 50, 49, 48, 47, 46} == only_names(filter_entries(e1, newer_than=nd, older_than=od))
+    assert {51, 50, 49, 48, 47, 46} == only_names(filter_entries(e1, newer=nd, older=od))
 
 
 def test_filter_name():
     d = parse_filename('PA290944'), 'name'
-    assert {'PA290941.JPG', 'PA290942.JPG', 'PA290943.JPG'} == only_names(filter_entries(e2, older_than=d))
-    assert {'PA290945.JPG', 'PA290946.JPG', 'PA290947.JPG'} == only_names(filter_entries(e2, newer_than=d))
+    assert {'PA290941.JPG', 'PA290942.JPG', 'PA290943.JPG'} == only_names(filter_entries(e2, older=d))
+    assert {'PA290945.JPG', 'PA290946.JPG', 'PA290947.JPG'} == only_names(filter_entries(e2, newer=d))
 
     nd = parse_filename('PA290943'), 'name'
     od = parse_filename('PA290946'), 'name'
-    assert {'PA290945.JPG', 'PA290944.JPG', 'PA290945.JPG'} == only_names(filter_entries(e2, newer_than=nd, older_than=od))
+    assert {'PA290945.JPG', 'PA290944.JPG', 'PA290945.JPG'} == only_names(filter_entries(e2, newer=nd, older=od))
 
 
 def test_filter_mixed():
     nd = parse_filename('PA290943'), 'name'
     od = dt(2017, 10, 29, 12, 52, 11), 'timestamp'
-    assert {'PA290945.JPG', 'PA290944.JPG', 'PA290945.JPG'} == only_names(filter_entries(e2, newer_than=nd, older_than=od))
+    assert {'PA290945.JPG', 'PA290944.JPG', 'PA290945.JPG'} == only_names(filter_entries(e2, newer=nd, older=od))
