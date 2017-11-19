@@ -143,13 +143,13 @@ def cmd_list(entries, parsable):
         print(fmt.format(entry.name, size, time))
 
 
-def cmd_get(conn, entries, names, destdir, parsable, dryrun=False):
+def cmd_get(conn, entries, names, destdir, download_func, dryrun=False):
     '''Download one or more file from camera.'''
     entries_to_download = names_to_entries(names, entries)
-    download_helper(conn, entries_to_download, destdir, parsable, dryrun)
+    download_helper(conn, entries_to_download, destdir, download_func, dryrun)
 
 
-def cmd_sync(conn, entries, destdir, parsable, dryrun=False):
+def cmd_sync(conn, entries, destdir, download_func, dryrun=False):
     '''Pull missing files from camera.'''
     entries_to_download = []
     for entry in entries:
@@ -158,7 +158,7 @@ def cmd_sync(conn, entries, destdir, parsable, dryrun=False):
             entries_to_download.append(entry)
 
     entries_to_download = list(reversed(entries_to_download))
-    download_helper(conn, entries_to_download, destdir, parsable, dryrun)
+    download_helper(conn, entries_to_download, destdir, download_func, dryrun)
 
 
 #-----------------------------------------------------------------------------
@@ -181,33 +181,34 @@ def names_to_entries(names, entries):
     return [name_to_entry[name] for name in matched_names]
 
 
-def download_helper(conn, entries, destdir, parsable, dryrun=False):
+def download_helper(conn, entries, destdir, download_func, dryrun=False):
     '''Download entries.'''
-    def with_progress(fh, entry, num_entries, num_entry):
-        with tqdm(desc=fh.name, total=entry.size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
-            pbar.set_postfix(remaining=num_entries - num_entry)
-            for data in oishare.download(conn, entry):
-                pbar.update(len(data))
-                fh.write(data)
-
-    def without_progress(fh, entry, num_entries, num_entry):
-        for data in oishare.download(conn, entry):
-            fh.write(data)
-        print(fh.name)
-
     if dryrun:
         paths = (destdir / entry.name for entry in entries)
         print('\n'.join(map(str, paths)))
         return
 
     destdir.mkdir(parents=True, exist_ok=True)
-    download_func = without_progress if parsable else with_progress
 
     num_entries = len(entries)
     for n, entry in enumerate(entries, 1):
         dest = destdir / entry.name
         with dest.open('wb') as fh:
-            download_func(fh, entry, num_entries, n)
+            download_func(conn, fh, entry, num_entries, n)
+
+
+def download_progressbar(conn, fh, entry, num_entries, num_entry):
+    with tqdm(desc=fh.name, total=entry.size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+        pbar.set_postfix(remaining=num_entries - num_entry)
+        for data in oishare.download(conn, entry):
+            pbar.update(len(data))
+            fh.write(data)
+
+
+def download_parsable(conn, fh, entry, num_entries, num_entry):
+    for data in oishare.download(conn, entry):
+        fh.write(data)
+    print(fh.name)
 
 
 #-----------------------------------------------------------------------------
@@ -220,13 +221,15 @@ def main(argv=sys.argv[1:]):
     if opts.newer[0] or opts.older[0]:
         entries = oishare.filter_entries(entries, opts.newer, opts.older)
 
+    download_func = download_parsable if opts.parsable else download_progressbar
+
     try:
         if cmd == 'list':
             cmd_list(entries, opts.parsable)
         elif cmd == 'get':
-            cmd_get(conn, entries, args[1:], opts.destdir, opts.parsable)
+            cmd_get(conn, entries, args[1:], opts.destdir, download_func)
         elif cmd == 'sync':
-            cmd_sync(conn, entries, opts.destdir, opts.parsable, opts.dryrun)
+            cmd_sync(conn, entries, opts.destdir, download_func, opts.dryrun)
     except KeyboardInterrupt:
         pass
 
