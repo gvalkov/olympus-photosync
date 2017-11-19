@@ -47,13 +47,14 @@ def parseopts(argv=None):
       destdir                 directory which to download media files
 
     Filter options:
-      --older timefmt         select files older than $timefmt
-      --newer timefmt         select files newer than $timefmt
+      --older timefmt|name    select files older than timestamp or filename
+      --newer timefmt|name    select files newer than timestamp or filename
       --on timefmt            select media from a specific day
 
     Examples:
       {prog} list --newer 2017-09-17T16:21:00 --older 2017-09-20
       {prog} list --newer 10d --older 12h
+      {prog} list --newer PA290930.JPG --older PB070950.JPG
       {prog} list --on today
       {prog} get -d ~/photos P8060697.JPG P7250454.MOV
       {prog} get -d ~/photos "*.jpg"
@@ -111,11 +112,16 @@ def parseopts(argv=None):
 
 
 def check_timespec_option(option, opt, value):
-    try:
-        return utils.parse_timespec(value)
-    except ValueError:
-        msg = 'option %s: unable to parse timespec %r' % (opt, value)
-        raise optparse.OptionValueError(msg)
+    parsed = utils.parse_filename(value)
+    if parsed:
+        return (parsed, 'name')
+
+    parsed = utils.parse_timespec(value)
+    if parsed:
+        return (parsed, 'timestamp')
+
+    msg = 'option %s: unable to parse timespec %r' % (opt, value)
+    raise optparse.OptionValueError(msg)
 
 # Add a 'timespec' option type.
 class Option(optparse.Option):
@@ -212,7 +218,7 @@ def main(argv=sys.argv[1:]):
 
     entries = oishare.find_entries(conn, opts.baseurl)
     if opts.newer or opts.older:
-        entries = oishare.filter_by_date(entries, opts.newer, opts.older)
+        entries = oishare.filter_entries(entries, opts.newer, opts.older)
 
     try:
         if cmd == 'list':

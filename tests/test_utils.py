@@ -22,8 +22,7 @@ def test_parse_timespec(spec, expect):
 
 
 def test_parse_timespec_failure():
-    with raises(ValueError):
-        utils.parse_timespec('not a date')
+    assert utils.parse_timespec('not a date') is None
 
 
 @mark.parametrize('size,expect', [
@@ -34,3 +33,13 @@ def test_parse_timespec_failure():
 ])
 def test_sizefmt(size, expect):
     assert utils.sizefmt(size) == expect
+
+
+@mark.parametrize('fname,expect', [
+    ('PA001123.jpg', 10001123),
+    ('AA001123.jpg', None),
+    ('P0000001.jpg', 1),
+    ('PF000000.jpg', 15000000),
+])
+def test_parse_fname(fname, expect):
+    assert utils.parse_filename(fname) == expect

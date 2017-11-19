@@ -23,15 +23,36 @@ def find_entries(conn, baseurl):
     return parse_index(html)
 
 
-def filter_by_date(entries, newer_than=None, older_than=None):
+def filter_entries(entries, newer_than=None, older_than=None):
+    key_funcs = {
+        'timestamp': keyfunc_timestamp,
+        'name': keyfunc_name,
+    }
+
+    if newer_than:
+        newer_than, newer_key = newer_than
+        newer_key = key_funcs[newer_key]
+
+    if older_than:
+        older_than, older_key = older_than
+        older_key = key_funcs[older_key]
+
     for entry in entries:
-        if newer_than and entry.timestamp <= newer_than:
+        if newer_than and newer_key(entry) <= newer_than:
             continue
 
-        if older_than and entry.timestamp >= older_than:
+        if older_than and older_key(entry) >= older_than:
             continue
 
         yield entry
+
+
+def keyfunc_timestamp(entry):
+    return entry[3]
+
+
+def keyfunc_name(entry):
+    return utils.parse_filename(entry[1])
 
 
 def parse_index(html):

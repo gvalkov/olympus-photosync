@@ -58,24 +58,25 @@ Usage
     -t, --timeout seconds   connection timeout (default: 60)
 
   Download options:
-    -n, --dryrun            show files that will be synced and exit
     -d, --destdir           destination directory (default: ./)
     name [name ...]         media files to download (example: PA290940.JPG)
 
   Synchronization options:
+    -n, --dryrun            show files that will be synced and exit
     destdir                 directory which to download media files
 
   Filter options:
-    --older timefmt         select files older than $timefmt
-    --newer timefmt         select files newer than $timefmt
+    --older timefmt|name    select files older than timestamp or filename
+    --newer timefmt|name    select files newer than timestamp or filename
     --on timefmt            select media from a specific day
 
   Examples:
     olympus-photosync list --newer 2017-09-17T16:21:00 --older 2017-09-20
     olympus-photosync list --newer 10d --older 12h
+    olympus-photosync list --newer PA290930.JPG --older PB070950.JPG
     olympus-photosync list --on today
-    olympus-photosync get --destdir ~/photos P8060697.JPG P7250454.MOV
-    olympus-photosync get --destdir ~/photos "*.jpg"
+    olympus-photosync get -d ~/photos P8060697.JPG P7250454.MOV
+    olympus-photosync get -d ~/photos "*.jpg"
     olympus-photosync sync ~/photos
 
 A cross-platform GUI is provided by the ``olympus-photosync-gui`` program. At

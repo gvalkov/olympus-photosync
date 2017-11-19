@@ -71,5 +71,12 @@ def parse_timespec(dt_str):
     for dt in map(try_parse, formats):
         if dt:
             return dt
-    else:
-        raise ValueError('time specifier "%s" could not be parsed' % dt_str)
+
+
+re_filename = re.compile(r'^P([0-9A-F]{7})')
+def parse_filename(fname):
+    m = re_filename.match(fname)
+    if m:
+        val = m.group(1)
+        val = str(int(val[0], base=16)) + val[1:]
+        return int(val)
