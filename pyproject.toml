@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "olympus-photosync"
+version = "1.3.0"
+authors = [
+  { name="Georgi Valkov", email="georgi.t.valkov@gmail.com" },
+]
+description = "Sync photos from WiFi enabled Olympus cameras"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+keywords = ["olympus", "camera", "sync"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+]
+requires-python = ">=3.6"
+dependencies = [
+    "tqdm",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/gvalkov/olympus-photosync"
+
+[project.scripts]
+olympus-photosync = "olympusphotosync.cli:main"
+olympus-photosync-gui = "olympusphotosync.gui:main"
+
+[tool.setuptools]
+packages = ["olympusphotosync"]
+
+[tool.ruff]
+line-length = 124
