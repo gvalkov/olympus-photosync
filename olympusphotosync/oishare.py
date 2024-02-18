@@ -7,7 +7,7 @@ from datetime import datetime
 from . import utils
 
 
-Entry = namedtuple('Entry', 'root name size timestamp')
+Entry = namedtuple("Entry", "root name size timestamp")
 
 
 def download(conn, entry, chunksize=8192):
@@ -26,8 +26,8 @@ def find_entries(conn, baseurl):
 def filter_entries(entries, newer=(None, None), older=(None, None)):
     newer_than, older_than = None, None
     key_funcs = {
-        'timestamp': keyfunc_timestamp,
-        'name': keyfunc_name,
+        "timestamp": keyfunc_timestamp,
+        "name": keyfunc_name,
     }
 
     if all(newer):
@@ -58,8 +58,8 @@ def keyfunc_name(entry):
 
 def parse_index(html):
     for entry in re.findall(rb'wlan.*?\[\d+?\]="(.*?)";', html):
-        root, name, size, _, date, time = entry.lstrip(b'/').split(b',')
-        root, name = root.decode('utf8'), name.decode('utf8')
+        root, name, size, _, date, time = entry.lstrip(b"/").split(b",")
+        root, name = root.decode("utf8"), name.decode("utf8")
         timestamp = parse_date_time(int(date), int(time))
 
         yield Entry(root, name, int(size), timestamp)
@@ -72,6 +72,6 @@ def parse_date_time(date, time):
 
     dd = (0b1111100000000000 & time) >> 11
     mm = (0b0000011111100000 & time) >> 5
-    ss = (0b0000000000011111 & time)
+    ss = 0b0000000000011111 & time
 
     return datetime(yr + 1980, mo, da, dd, mm, ss)

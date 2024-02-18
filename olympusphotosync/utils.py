@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 
 
 def sizefmt(num):
-    for unit in '', 'Ki', 'Mi':
+    for unit in "", "Ki", "Mi":
         if abs(num) < 1024.0:
-            return '{:3.2f}{}B'.format(num, unit)
+            return "{:3.2f}{}B".format(num, unit)
         num /= 1024.0
-    return '{:3.2f}GiB'.format(num)
+    return "{:3.2f}GiB".format(num)
 
 
 def remove_duplicates(seq):
@@ -16,7 +16,7 @@ def remove_duplicates(seq):
 
 
 def httpget(conn, url, check=True, stream=False):
-    conn.request('GET', '/' + url.lstrip('/'))
+    conn.request("GET", "/" + url.lstrip("/"))
     resp = conn.getresponse()
     if check:
         assert resp.status == 200
@@ -24,36 +24,36 @@ def httpget(conn, url, check=True, stream=False):
 
 
 def parse_short_timespec(dt_str):
-    m = re.match('^(\d+)([smhdw])$', dt_str)
+    m = re.match(r"^(\d+)([smhdw])$", dt_str)
     if not m:
         return
 
     now = datetime.now().replace(microsecond=0)
     value, magnitude = m.groups()
 
-    timedelta_kw = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks'}
+    timedelta_kw = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
     kw = {timedelta_kw[magnitude]: int(value)}
     return now - timedelta(**kw)
 
 
 def parse_timespec(dt_str):
     formats = (
-        '%Y-%m-%dT%H:%M:%S',
-        '%Y-%m-%dT%H:%M',
-        '%Y-%m-%d %H:%M:%S',
-        '%Y-%m-%d %H:%M',
-        '%Y-%m-%d',
-        '%Y-%m',
-        '%Y',
-        '%H:%M:%S',
-        '%H:%M',
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M",
+        "%Y-%m-%d",
+        "%Y-%m",
+        "%Y",
+        "%H:%M:%S",
+        "%H:%M",
     )
 
-    dt_str = dt_str.replace('/', '-')
+    dt_str = dt_str.replace("/", "-")
     now = datetime.now()
 
     def try_parse(f):
-        if dt_str == 'today':
+        if dt_str == "today":
             return now.replace(hour=0, minute=0, second=0, microsecond=0)
 
         short_spec = parse_short_timespec(dt_str)
@@ -73,7 +73,9 @@ def parse_timespec(dt_str):
             return dt
 
 
-re_filename = re.compile(r'^P([0-9A-F]{7})')
+re_filename = re.compile(r"^P([0-9A-F]{7})")
+
+
 def parse_filename(fname):
     m = re_filename.match(fname)
     if m:

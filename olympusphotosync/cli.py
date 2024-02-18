@@ -12,12 +12,13 @@ from . import oishare
 from . import utils
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Option parsing
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def parseopts(argv=None):
-    usage = '''
+    usage = """
     Usage: {prog} [options] <get|list|sync> ...
 
     List, download and sync photos and videos from WiFi enabled Olympus cameras.
@@ -59,26 +60,26 @@ def parseopts(argv=None):
       {prog} get -d ~/photos P8060697.JPG P7250454.MOV
       {prog} get -d ~/photos "*.jpg"
       {prog} sync ~/photos
-    '''
+    """
 
     parser = optparse.OptionParser(add_help_option=False, option_class=Option, version=__version__)
     opt = parser.add_option
 
-    opt('-h', '--help', action='store_true')
-    opt('-v', action='version')
+    opt("-h", "--help", action="store_true")
+    opt("-v", action="version")
 
-    opt('-a', '--addr', default='192.168.0.10')
-    opt('-p', '--port', default=80, type='int')
-    opt('-b', '--baseurl', default='/DCIM/100OLYMP')
-    opt('-t', '--timeout', default=60, type='int')
+    opt("-a", "--addr", default="192.168.0.10")
+    opt("-p", "--port", default=80, type="int")
+    opt("-b", "--baseurl", default="/DCIM/100OLYMP")
+    opt("-t", "--timeout", default=60, type="int")
 
-    opt('-r', '--parsable', action='store_true')
-    opt('-d', '--destdir', default='./')
-    opt('-n', '--dryrun', action='store_true')
+    opt("-r", "--parsable", action="store_true")
+    opt("-d", "--destdir", default="./")
+    opt("-n", "--dryrun", action="store_true")
 
-    opt('--older', type='timespec', default=(None, None))
-    opt('--newer', type='timespec', default=(None, None))
-    opt('--on', type='timespec')
+    opt("--older", type="timespec", default=(None, None))
+    opt("--newer", type="timespec", default=(None, None))
+    opt("--on", type="timespec")
 
     opts, args = parser.parse_args(argv)
 
@@ -92,18 +93,18 @@ def parseopts(argv=None):
         opts.newer = opts.on.replace(hour=0, minute=0, second=0, microsecond=0)
         opts.older = opts.on.replace(hour=23, minute=59, second=59, microsecond=59999)
 
-    if args[0] == 'sync':
+    if args[0] == "sync":
         if not args[1:]:
-            print('error: sync command requires destination directory', file=sys.stderr)
+            print("error: sync command requires destination directory", file=sys.stderr)
             sys.exit(2)
         opts.destdir = args[1]
 
-    if args[0] not in ('get', 'list', 'sync'):
-        print('error: unknown command: %s' % args[0], file=sys.stderr)
+    if args[0] not in ("get", "list", "sync"):
+        print("error: unknown command: %s" % args[0], file=sys.stderr)
         sys.exit(2)
 
-    if args[0] == 'get' and not args[1:]:
-        print('error: no files specified', file=sys.stderr)
+    if args[0] == "get" and not args[1:]:
+        print("error: no files specified", file=sys.stderr)
         sys.exit(2)
 
     opts.destdir = Path(opts.destdir)
@@ -114,29 +115,31 @@ def parseopts(argv=None):
 def check_timespec_option(option, opt, value):
     parsed = utils.parse_filename(value)
     if parsed:
-        return (parsed, 'name')
+        return (parsed, "name")
 
     parsed = utils.parse_timespec(value)
     if parsed:
-        return (parsed, 'timestamp')
+        return (parsed, "timestamp")
 
-    msg = 'option %s: unable to parse timespec %r' % (opt, value)
+    msg = "option %s: unable to parse timespec %r" % (opt, value)
     raise optparse.OptionValueError(msg)
+
 
 # Add a 'timespec' option type.
 class Option(optparse.Option):
-    TYPES = optparse.Option.TYPES + ('timespec',)
+    TYPES = optparse.Option.TYPES + ("timespec",)
     TYPE_CHECKER = optparse.Option.TYPE_CHECKER.copy()
-    TYPE_CHECKER['timespec'] = check_timespec_option
+    TYPE_CHECKER["timespec"] = check_timespec_option
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Commands
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def cmd_list(entries, parsable):
-    '''List all media files on camera.'''
-    fmt = '{} {} {} ' if parsable else '{}   {:<9}  {}'
+    """List all media files on camera."""
+    fmt = "{} {} {} " if parsable else "{}   {:<9}  {}"
     for entry in entries:
         size = entry.size if parsable else utils.sizefmt(entry.size)
         time = int(entry.timestamp.timestamp()) if parsable else entry.timestamp.isoformat()
@@ -144,13 +147,13 @@ def cmd_list(entries, parsable):
 
 
 def cmd_get(conn, entries, names, destdir, download_func, dryrun=False):
-    '''Download one or more file from camera.'''
+    """Download one or more file from camera."""
     entries_to_download = names_to_entries(names, entries)
     download_helper(conn, entries_to_download, destdir, download_func, dryrun)
 
 
 def cmd_sync(conn, entries, destdir, download_func, dryrun=False):
-    '''Pull missing files from camera.'''
+    """Pull missing files from camera."""
     entries_to_download = []
     for entry in entries:
         dest = destdir / entry.name
@@ -161,12 +164,13 @@ def cmd_sync(conn, entries, destdir, download_func, dryrun=False):
     download_helper(conn, entries_to_download, destdir, download_func, dryrun)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Utility functions
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def names_to_entries(names, entries):
-    '''Find all entries that match a given name or pattern.'''
+    """Find all entries that match a given name or pattern."""
     name_to_entry = {entry.name: entry for entry in entries}
     matched_names = []
 
@@ -182,10 +186,10 @@ def names_to_entries(names, entries):
 
 
 def download_helper(conn, entries, destdir, download_func, dryrun=False):
-    '''Download entries.'''
+    """Download entries."""
     if dryrun:
         paths = (destdir / entry.name for entry in entries)
-        print('\n'.join(map(str, paths)))
+        print("\n".join(map(str, paths)))
         return
 
     destdir.mkdir(parents=True, exist_ok=True)
@@ -193,12 +197,12 @@ def download_helper(conn, entries, destdir, download_func, dryrun=False):
     num_entries = len(entries)
     for n, entry in enumerate(entries, 1):
         dest = destdir / entry.name
-        with dest.open('wb') as fh:
+        with dest.open("wb") as fh:
             download_func(conn, fh, entry, num_entries, n)
 
 
 def download_progressbar(conn, fh, entry, num_entries, num_entry):
-    with tqdm(desc=fh.name, total=entry.size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+    with tqdm(desc=fh.name, total=entry.size, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
         pbar.set_postfix(remaining=num_entries - num_entry)
         for data in oishare.download(conn, entry):
             pbar.update(len(data))
@@ -211,7 +215,8 @@ def download_parsable(conn, fh, entry, num_entries, num_entry):
     print(fh.name)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def main(argv=sys.argv[1:]):
     opts, cmd, args = parseopts(argv)
@@ -224,15 +229,15 @@ def main(argv=sys.argv[1:]):
     download_func = download_parsable if opts.parsable else download_progressbar
 
     try:
-        if cmd == 'list':
+        if cmd == "list":
             cmd_list(entries, opts.parsable)
-        elif cmd == 'get':
+        elif cmd == "get":
             cmd_get(conn, entries, args[1:], opts.destdir, download_func)
-        elif cmd == 'sync':
+        elif cmd == "sync":
             cmd_sync(conn, entries, opts.destdir, download_func, opts.dryrun)
     except KeyboardInterrupt:
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
