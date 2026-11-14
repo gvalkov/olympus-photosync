@@ -1,7 +1,33 @@
-from pytest import mark, raises
+import io
+from datetime import datetime as dt
+from datetime import timedelta as td
+from urllib.error import HTTPError
 
-from datetime import datetime as dt, timedelta as td
+import pytest
+from pytest import mark
+
 from olympusphotosync import utils
+
+
+class FakeResponse(io.BytesIO):
+    def __init__(self, status=200):
+        super().__init__(b"")
+        self.status = status
+        self.reason = "OK" if status == 200 else "Not Found"
+        self.headers = {}
+
+
+class FakeConn:
+    host = "localhost"
+
+    def __init__(self, status=200):
+        self.status = status
+
+    def request(self, method, url):
+        self.url = url
+
+    def getresponse(self):
+        return FakeResponse(self.status)
 
 
 now = dt.now().replace(microsecond=0)
@@ -53,3 +79,16 @@ def test_sizefmt(size, expect):
 )
 def test_parse_fname(fname, expect):
     assert utils.parse_filename(fname) == expect
+
+
+def test_httpget_returns_body():
+    assert utils.httpget(FakeConn(), "/x") == b""
+
+
+def test_httpget_raises_on_error_status():
+    with pytest.raises(HTTPError):
+        utils.httpget(FakeConn(status=404), "/x")
+
+
+def test_httpget_accepts_any_status_when_unchecked():
+    assert utils.httpget(FakeConn(status=404), "/x", check=False) == b""

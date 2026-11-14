@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 
-from bottle import route, run, response
+from bottle import response, route, run
 from data.entries import entries
 
+with open("data/index_dcim.html") as fh:
+    index_dcim = fh.read()
 
-index_dcim = open("data/index_dcim.html").read()
-index_olymp = open("data/index_dcim_100olymp.html").read()
+with open("data/index_dcim_100olymp.html") as fh:
+    index_olymp = fh.read()
 
 name_to_entry = {entry.name: entry for entry in entries}
 
 
 @route("/DCIM")
-def index():
+def index_dcim():
     return index_dcim
 
 
 @route("/DCIM/100OLYMP")
-def index():
+def index_olymp():
     return index_olymp
 
 

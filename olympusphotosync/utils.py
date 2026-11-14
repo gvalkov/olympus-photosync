@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta
+from urllib.error import HTTPError
 
 
 def sizefmt(num):
@@ -18,8 +19,9 @@ def remove_duplicates(seq):
 def httpget(conn, url, check=True, stream=False):
     conn.request("GET", "/" + url.lstrip("/"))
     resp = conn.getresponse()
-    if check:
-        assert resp.status == 200
+    if check and resp.status != 200:
+        resp.close()
+        raise HTTPError(f"http://{conn.host}{url}", resp.status, resp.reason, resp.headers, resp)
     return resp if stream else resp.read()
 
 

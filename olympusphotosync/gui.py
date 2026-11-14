@@ -1,12 +1,10 @@
-import os
 import argparse
 import threading
-
-from tkinter import *
-from tkinter import filedialog, messagebox
-from tkinter.ttk import *
-from urllib.parse import urlparse
 from http.client import HTTPConnection
+from pathlib import Path
+from tkinter import Button, Entry, Frame, Label, Scrollbar, StringVar, Tk, filedialog, messagebox
+from tkinter.ttk import Progressbar, Style, Treeview
+from urllib.parse import urlparse
 
 from . import oishare, utils
 
@@ -114,17 +112,15 @@ class Application:
         names = [self.tree.item(i)["text"] for i in self.tree.selection()]
         entries = [self.name_to_entry[name] for name in names]
 
-        t1 = DownloadThread(self, entries, self.destdir.get())
-        t1.daemon = True
-        t1.start()
+        DownloadThread(self, entries, self.destdir.get()).start()
 
     def list_action(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
 
         url = urlparse(self.url.get())
-        self.conn = HTTPConnection(url.hostname, url.port)
-        entries = oishare.find_entries(self.conn, "/DCIM/100OLYMP")
+        self.conn = HTTPConnection(url.hostname, url.port, timeout=60)
+        entries = oishare.find_entries(self.conn, url.path or "/DCIM/100OLYMP")
         self.name_to_entry = {i.name: i for i in entries}
 
         for entry in self.name_to_entry.values():
@@ -146,7 +142,7 @@ class DownloadThread(threading.Thread):
         self.entries = entries
         self.destdir = destdir
         self.stop_event = threading.Event()
-        super().__init__()
+        super().__init__(daemon=True)
 
     def download(self, fh, entry):
         for data in oishare.download(self.app.conn, entry):
@@ -160,8 +156,8 @@ class DownloadThread(threading.Thread):
         entry_iter = iter(self.entries)
         entry = next(entry_iter, None)
         while entry and not self.stop_event.is_set():
-            dest = os.path.join(self.destdir, entry.name)
-            with open(dest, "wb") as fh:
+            dest = Path(self.destdir) / entry.name
+            with dest.open("wb") as fh:
                 self.app.progressbar_reset()
                 self.app.progressbar_desc(entry.size, entry.name)
                 self.download(fh, entry)
@@ -172,7 +168,7 @@ class DownloadThread(threading.Thread):
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-u", "--url", default="http://192.168.0.10:80/DCIM/100OLYMP", help="oishare base url")
-    parser.add_argument("-d", "--destdir", default=os.path.abspath(os.curdir), help="destination directory")
+    parser.add_argument("-d", "--destdir", default=str(Path.cwd()), help="destination directory")
     args = parser.parse_args()
     app = Application(args.url, args.destdir)
     app.root.mainloop()

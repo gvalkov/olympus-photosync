@@ -1,16 +1,13 @@
-import sys
 import fnmatch
-import textwrap
 import optparse
-from pathlib import Path
+import sys
+import textwrap
 from http.client import HTTPConnection
+from pathlib import Path
 
 from tqdm import tqdm
 
-from . import __version__
-from . import oishare
-from . import utils
-
+from . import __version__, oishare, utils
 
 # -----------------------------------------------------------------------------
 # Option parsing
@@ -90,8 +87,12 @@ def parseopts(argv=None):
 
     if opts.on:
         # TODO: Works only for days.
-        opts.newer = opts.on.replace(hour=0, minute=0, second=0, microsecond=0)
-        opts.older = opts.on.replace(hour=23, minute=59, second=59, microsecond=59999)
+        value, kind = opts.on
+        if kind == "timestamp":
+            opts.newer = value.replace(hour=0, minute=0, second=0, microsecond=0), kind
+            opts.older = value.replace(hour=23, minute=59, second=59, microsecond=999999), kind
+        else:
+            opts.newer = opts.older = opts.on
 
     if args[0] == "sync":
         if not args[1:]:
@@ -197,28 +198,30 @@ def download_helper(conn, entries, destdir, download_func, dryrun=False):
     num_entries = len(entries)
     for n, entry in enumerate(entries, 1):
         dest = destdir / entry.name
-        with dest.open("wb") as fh:
-            download_func(conn, fh, entry, num_entries, n)
+        tmp = dest.with_suffix(dest.suffix + ".part")
+        with tmp.open("wb") as fh:
+            download_func(conn, fh, entry, num_entries, n, dest)
+        tmp.replace(dest)
 
 
-def download_progressbar(conn, fh, entry, num_entries, num_entry):
-    with tqdm(desc=fh.name, total=entry.size, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
+def download_progressbar(conn, fh, entry, num_entries, num_entry, dest):
+    with tqdm(desc=str(dest), total=entry.size, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
         pbar.set_postfix(remaining=num_entries - num_entry)
         for data in oishare.download(conn, entry):
             pbar.update(len(data))
             fh.write(data)
 
 
-def download_parsable(conn, fh, entry, num_entries, num_entry):
+def download_parsable(conn, fh, entry, num_entries, num_entry, dest):
     for data in oishare.download(conn, entry):
         fh.write(data)
-    print(fh.name)
+    print(dest)
 
 
 # -----------------------------------------------------------------------------
 
 
-def main(argv=sys.argv[1:]):
+def main(argv=None):
     opts, cmd, args = parseopts(argv)
     conn = HTTPConnection(opts.addr, opts.port, opts.timeout)
 

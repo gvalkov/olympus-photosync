@@ -1,11 +1,9 @@
 import os
 import re
-
 from collections import namedtuple
 from datetime import datetime
 
 from . import utils
-
 
 Entry = namedtuple("Entry", "root name size timestamp")
 
@@ -14,8 +12,11 @@ def download(conn, entry, chunksize=8192):
     srcpath = os.path.join(entry.root, entry.name)
     resp = utils.httpget(conn, srcpath, stream=True)
 
-    while not resp.isclosed():
-        yield resp.read(chunksize)
+    try:
+        while chunk := resp.read(chunksize):
+            yield chunk
+    finally:
+        resp.close()
 
 
 def find_entries(conn, baseurl):

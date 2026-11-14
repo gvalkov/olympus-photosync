@@ -40,6 +40,10 @@ module-root = ""
 
 [tool.ruff]
 line-length = 120
+extend-exclude = ["tests/data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
 
 [build-system]
 requires = ["uv_build>=0.9.29,<0.10.0"]

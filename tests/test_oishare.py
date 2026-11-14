@@ -1,7 +1,9 @@
+import io
 from datetime import datetime as dt
-from olympusphotosync.utils import parse_filename
-from olympusphotosync.oishare import Entry, filter_entries
 
+from olympusphotosync import oishare, utils
+from olympusphotosync.oishare import Entry, filter_entries
+from olympusphotosync.utils import parse_filename
 
 e1 = [
     Entry(root="", name=41, size=7969793, timestamp=dt(2017, 10, 25, 12, 50, 19)),
@@ -52,10 +54,27 @@ def test_filter_name():
 
     nd = parse_filename("PA290943"), "name"
     od = parse_filename("PA290946"), "name"
-    assert {"PA290945.JPG", "PA290944.JPG", "PA290945.JPG"} == only_names(filter_entries(e2, newer=nd, older=od))
+    assert {"PA290944.JPG", "PA290945.JPG"} == only_names(filter_entries(e2, newer=nd, older=od))
 
 
 def test_filter_mixed():
     nd = parse_filename("PA290943"), "name"
     od = dt(2017, 10, 29, 12, 52, 11), "timestamp"
-    assert {"PA290945.JPG", "PA290944.JPG", "PA290945.JPG"} == only_names(filter_entries(e2, newer=nd, older=od))
+    assert {"PA290944.JPG", "PA290945.JPG"} == only_names(filter_entries(e2, newer=nd, older=od))
+
+
+class FakeResponse(io.BytesIO):
+    closed_by_client = False
+
+    def close(self):
+        self.closed_by_client = True
+        super().close()
+
+
+def test_download_reads_until_eof(monkeypatch):
+    resp = FakeResponse(b"a" * 10)
+    monkeypatch.setattr(utils, "httpget", lambda *args, **kwargs: resp)
+
+    entry = Entry(root="", name="PA290941.JPG", size=10, timestamp=None)
+    assert b"".join(oishare.download(None, entry, chunksize=4)) == b"a" * 10
+    assert resp.closed_by_client
