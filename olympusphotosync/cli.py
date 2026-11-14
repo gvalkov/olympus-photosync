@@ -3,11 +3,12 @@ import optparse
 import sys
 import textwrap
 from http.client import HTTPConnection
+from importlib.metadata import version
 from pathlib import Path
 
 from tqdm import tqdm
 
-from . import __version__, oishare, utils
+from . import oishare, utils
 
 # -----------------------------------------------------------------------------
 # Option parsing
@@ -59,7 +60,7 @@ def parseopts(argv=None):
       {prog} sync ~/photos
     """
 
-    parser = optparse.OptionParser(add_help_option=False, option_class=Option, version=__version__)
+    parser = optparse.OptionParser(add_help_option=False, option_class=Option, version=version("olympus-photosync"))
     opt = parser.add_option
 
     opt("-h", "--help", action="store_true")
