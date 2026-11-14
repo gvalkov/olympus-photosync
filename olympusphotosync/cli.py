@@ -100,7 +100,7 @@ def parseopts(argv=None):
         opts.destdir = args[1]
 
     if args[0] not in ("get", "list", "sync"):
-        print("error: unknown command: %s" % args[0], file=sys.stderr)
+        print(f"error: unknown command: {args[0]}", file=sys.stderr)
         sys.exit(2)
 
     if args[0] == "get" and not args[1:]:
@@ -121,7 +121,7 @@ def check_timespec_option(option, opt, value):
     if parsed:
         return (parsed, "timestamp")
 
-    msg = "option %s: unable to parse timespec %r" % (opt, value)
+    msg = f"option {opt}: unable to parse timespec {value!r}"
     raise optparse.OptionValueError(msg)
 
 
@@ -179,7 +179,7 @@ def names_to_entries(names, entries):
         if matched:
             matched_names += matched
         else:
-            raise SystemExit('error: pattern or name "%s" does not match any files' % name)
+            raise SystemExit(f'error: pattern or name "{name}" does not match any files')
 
     matched_names = utils.remove_duplicates(matched_names)
     return [name_to_entry[name] for name in matched_names]

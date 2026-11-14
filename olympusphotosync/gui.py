@@ -11,7 +11,7 @@ from http.client import HTTPConnection
 from . import oishare, utils
 
 
-class Application(object):
+class Application:
     def __init__(self, url, destdir):
         self.root = Tk()
 

@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 def sizefmt(num):
     for unit in "", "Ki", "Mi":
         if abs(num) < 1024.0:
-            return "{:3.2f}{}B".format(num, unit)
+            return f"{num:3.2f}{unit}B"
         num /= 1024.0
-    return "{:3.2f}GiB".format(num)
+    return f"{num:3.2f}GiB"
 
 
 def remove_duplicates(seq):

@@ -1,35 +1,46 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "olympus-photosync"
 version = "1.4.0"
-authors = [
-  { name="Georgi Valkov", email="georgi.t.valkov@gmail.com" },
-]
 description = "Sync photos from WiFi enabled Olympus cameras"
-readme = "README.rst"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Georgi Valkov", email = "georgi.t.valkov@gmail.com" },
+]
 keywords = ["olympus", "camera", "sync"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: BSD License",
 ]
-requires-python = ">=3.6"
-dependencies = [
-    "tqdm",
-]
-
-[project.urls]
-"Homepage" = "https://github.com/gvalkov/olympus-photosync"
+requires-python = ">=3.12"
+dependencies = ["tqdm"]
 
 [project.scripts]
 olympus-photosync = "olympusphotosync.cli:main"
 olympus-photosync-gui = "olympusphotosync.gui:main"
 
-[tool.setuptools]
-packages = ["olympusphotosync"]
+[project.urls]
+Homepage = "https://github.com/gvalkov/olympus-photosync"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "bottle>=0.12",
+    "ruff>=0.6",
+]
+
+[tool.uv.build-backend]
+module-name = "olympusphotosync"
+module-root = ""
 
 [tool.ruff]
-line-length = 124
+line-length = 120
+
+[build-system]
+requires = ["uv_build>=0.9.29,<0.10.0"]
+build-backend = "uv_build"
